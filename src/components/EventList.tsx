@@ -16,15 +16,48 @@ interface Props {
   }) => Promise<void>
 }
 
+type PendingDelete = { kind: 'event' | 'result'; id: string }
+
 export function EventList({ events, onDeleteEvent, onDeleteResult, onAddResult }: Props) {
   const [addingResultFor, setAddingResultFor] = useState<string | null>(null)
+  const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null)
 
   if (events.length === 0) {
     return <p className="muted">Inga pass tillagda ännu. Lägg till en träning eller tävling ovan.</p>
   }
 
+  async function confirmDelete() {
+    if (!pendingDelete) return
+    if (pendingDelete.kind === 'event') {
+      await onDeleteEvent(pendingDelete.id)
+    } else {
+      await onDeleteResult(pendingDelete.id)
+    }
+    setPendingDelete(null)
+  }
+
   return (
     <div className="event-list">
+      {pendingDelete && (
+        <div className="modal-overlay" onClick={() => setPendingDelete(null)}>
+          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+            <p>
+              {pendingDelete.kind === 'event'
+                ? 'Är du säker på att du vill ta bort detta pass?'
+                : 'Är du säker på att du vill ta bort detta resultat?'}
+            </p>
+            <div className="result-form-actions">
+              <button type="button" className="danger" onClick={confirmDelete}>
+                Ta bort
+              </button>
+              <button type="button" onClick={() => setPendingDelete(null)}>
+                Avbryt
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {events.map((event) => (
         <div className="card event-card" key={event.id}>
           <div className="event-header">
@@ -37,7 +70,11 @@ export function EventList({ events, onDeleteEvent, onDeleteResult, onAddResult }
               </p>
               {event.notes && <p className="muted">{event.notes}</p>}
             </div>
-            <button type="button" className="danger" onClick={() => onDeleteEvent(event.id)}>
+            <button
+              type="button"
+              className="danger"
+              onClick={() => setPendingDelete({ kind: 'event', id: event.id })}
+            >
               Ta bort
             </button>
           </div>
@@ -64,7 +101,11 @@ export function EventList({ events, onDeleteEvent, onDeleteResult, onAddResult }
                     <td>{result.inner_tens ?? '-'}</td>
                     <td>{result.notes ?? '-'}</td>
                     <td>
-                      <button type="button" className="danger small" onClick={() => onDeleteResult(result.id)}>
+                      <button
+                        type="button"
+                        className="danger small"
+                        onClick={() => setPendingDelete({ kind: 'result', id: result.id })}
+                      >
                         Ta bort
                       </button>
                     </td>
