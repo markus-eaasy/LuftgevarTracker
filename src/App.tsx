@@ -34,7 +34,7 @@ function App() {
       <header>
         <div className="header-row">
           <h1>Luftgevärstracker</h1>
-          <button type="button" onClick={() => setShowReleaseNotes(true)}>
+          <button type="button" className="release-notes-button" onClick={() => setShowReleaseNotes(true)}>
             Nytt i versionen
           </button>
         </div>
