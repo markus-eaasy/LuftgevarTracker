@@ -91,6 +91,10 @@ function App() {
                 await api.addResult(input)
                 await refresh()
               }}
+              onEditResult={async (id, input) => {
+                await api.updateResult(id, input)
+                await refresh()
+              }}
             />
           )}
         </>
@@ -118,6 +122,10 @@ function App() {
               }}
               onAddResult={async (input) => {
                 await api.addResult(input)
+                await refresh()
+              }}
+              onEditResult={async (id, input) => {
+                await api.updateResult(id, input)
                 await refresh()
               }}
             />

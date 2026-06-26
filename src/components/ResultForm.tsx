@@ -1,24 +1,27 @@
 import { useState, type FormEvent } from 'react'
 
+interface ResultInput {
+  series_count: number
+  shots_per_series: number
+  total_score: number
+  inner_tens?: number
+  notes?: string
+}
+
 interface Props {
   eventId: string
-  onSubmit: (input: {
-    event_id: string
-    series_count: number
-    shots_per_series: number
-    total_score: number
-    inner_tens?: number
-    notes?: string
-  }) => Promise<void>
+  initialValues?: ResultInput
+  submitLabel?: string
+  onSubmit: (input: { event_id: string } & ResultInput) => Promise<void>
   onCancel: () => void
 }
 
-export function ResultForm({ eventId, onSubmit, onCancel }: Props) {
-  const [seriesCount, setSeriesCount] = useState(4)
-  const [shotsPerSeries, setShotsPerSeries] = useState(10)
-  const [totalScore, setTotalScore] = useState('')
-  const [innerTens, setInnerTens] = useState('')
-  const [notes, setNotes] = useState('')
+export function ResultForm({ eventId, initialValues, submitLabel, onSubmit, onCancel }: Props) {
+  const [seriesCount, setSeriesCount] = useState(initialValues?.series_count ?? 4)
+  const [shotsPerSeries, setShotsPerSeries] = useState(initialValues?.shots_per_series ?? 10)
+  const [totalScore, setTotalScore] = useState(initialValues ? String(initialValues.total_score) : '')
+  const [innerTens, setInnerTens] = useState(initialValues?.inner_tens ? String(initialValues.inner_tens) : '')
+  const [notes, setNotes] = useState(initialValues?.notes ?? '')
   const [submitting, setSubmitting] = useState(false)
 
   async function handleSubmit(e: FormEvent) {
@@ -63,7 +66,7 @@ export function ResultForm({ eventId, onSubmit, onCancel }: Props) {
       </label>
       <div className="result-form-actions">
         <button type="submit" disabled={submitting}>
-          {submitting ? 'Sparar…' : 'Spara resultat'}
+          {submitting ? 'Sparar…' : submitLabel ?? 'Spara resultat'}
         </button>
         <button type="button" onClick={onCancel}>
           Avbryt

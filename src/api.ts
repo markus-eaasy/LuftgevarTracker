@@ -45,3 +45,18 @@ export async function deleteResult(id: string): Promise<void> {
   const { error } = await supabase.from('results').delete().eq('id', id)
   if (error) throw error
 }
+
+export async function updateResult(
+  id: string,
+  input: {
+    series_count: number
+    shots_per_series: number
+    total_score: number
+    inner_tens?: number
+    notes?: string
+  },
+): Promise<Result> {
+  const { data, error } = await supabase.from('results').update(input).eq('id', id).select().single()
+  if (error) throw error
+  return data as Result
+}
