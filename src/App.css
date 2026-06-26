@@ -193,7 +193,8 @@ button.small {
 }
 
 .add-result-button-row {
-  text-align: center;
+  text-align: left;
+  margin-top: 1.25rem;
 }
 
 .badge {
