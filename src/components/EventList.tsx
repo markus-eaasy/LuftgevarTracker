@@ -43,6 +43,7 @@ export function EventList({ events, onDeleteEvent, onDeleteResult, onAddResult }
           </div>
 
           {event.results.length > 0 && (
+            <div className="results-table-wrapper">
             <table className="results-table">
               <thead>
                 <tr>
@@ -71,6 +72,7 @@ export function EventList({ events, onDeleteEvent, onDeleteResult, onAddResult }
                 ))}
               </tbody>
             </table>
+            </div>
           )}
 
           {addingResultFor === event.id ? (
