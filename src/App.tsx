@@ -32,8 +32,8 @@ function App() {
     refresh()
   }, [])
 
-  const today = new Date().toISOString().slice(0, 10)
-  const plannedEvents = events.filter((event) => event.event_date >= today)
+  const plannedEvents = events.filter((event) => event.results.length === 0)
+  const eventsWithResults = events.filter((event) => event.results.length > 0)
 
   return (
     <div className="app">
@@ -98,14 +98,16 @@ function App() {
 
       {view === 'resultat' && (
         <>
-          <ProgressChart events={events} />
+          <ProgressChart events={eventsWithResults} />
 
-          <h2>Alla pass</h2>
+          <h2>Resultat</h2>
           {loading ? (
             <p className="muted">Laddar…</p>
+          ) : eventsWithResults.length === 0 ? (
+            <p className="muted">Inga resultat registrerade ännu.</p>
           ) : (
             <EventList
-              events={events}
+              events={eventsWithResults}
               onDeleteEvent={async (id) => {
                 await api.deleteEvent(id)
                 await refresh()
