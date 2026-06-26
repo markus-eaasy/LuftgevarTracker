@@ -185,6 +185,10 @@ button.small {
   font-size: 0.8rem;
 }
 
+button.small + button.small {
+  margin-left: 0.4rem;
+}
+
 .event-card .event-header {
   display: flex;
   justify-content: space-between;

@@ -14,12 +14,23 @@ interface Props {
     inner_tens?: number
     notes?: string
   }) => Promise<void>
+  onEditResult: (
+    id: string,
+    input: {
+      series_count: number
+      shots_per_series: number
+      total_score: number
+      inner_tens?: number
+      notes?: string
+    },
+  ) => Promise<void>
 }
 
 type PendingDelete = { kind: 'event' | 'result'; id: string }
 
-export function EventList({ events, onDeleteEvent, onDeleteResult, onAddResult }: Props) {
+export function EventList({ events, onDeleteEvent, onDeleteResult, onAddResult, onEditResult }: Props) {
   const [addingResultFor, setAddingResultFor] = useState<string | null>(null)
+  const [editingResultId, setEditingResultId] = useState<string | null>(null)
   const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null)
 
   if (events.length === 0) {
@@ -101,6 +112,9 @@ export function EventList({ events, onDeleteEvent, onDeleteResult, onAddResult }
                     <td>{result.inner_tens ?? '-'}</td>
                     <td>{result.notes ?? '-'}</td>
                     <td>
+                      <button type="button" className="small" onClick={() => setEditingResultId(result.id)}>
+                        Ändra resultat
+                      </button>
                       <button
                         type="button"
                         className="danger small"
@@ -115,6 +129,28 @@ export function EventList({ events, onDeleteEvent, onDeleteResult, onAddResult }
             </table>
             </div>
           )}
+
+          {event.results
+            .filter((result) => result.id === editingResultId)
+            .map((result) => (
+              <ResultForm
+                key={result.id}
+                eventId={event.id}
+                submitLabel="Spara ändringar"
+                initialValues={{
+                  series_count: result.series_count,
+                  shots_per_series: result.shots_per_series,
+                  total_score: result.total_score,
+                  inner_tens: result.inner_tens ?? undefined,
+                  notes: result.notes ?? undefined,
+                }}
+                onSubmit={async (input) => {
+                  await onEditResult(result.id, input)
+                  setEditingResultId(null)
+                }}
+                onCancel={() => setEditingResultId(null)}
+              />
+            ))}
 
           {addingResultFor === event.id ? (
             <ResultForm
