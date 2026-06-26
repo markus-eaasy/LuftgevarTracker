@@ -1,0 +1,80 @@
+import { useEffect, useState } from 'react'
+import './App.css'
+import * as api from './api'
+import { EventForm } from './components/EventForm'
+import { EventList } from './components/EventList'
+import { ProgressChart } from './components/ProgressChart'
+import type { EventWithResults } from './types'
+
+function App() {
+  const [events, setEvents] = useState<EventWithResults[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  async function refresh() {
+    try {
+      setError(null)
+      const data = await api.listEvents()
+      setEvents(data)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Något gick fel')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    refresh()
+  }, [])
+
+  return (
+    <div className="app">
+      <header>
+        <h1>Luftgevärstracker</h1>
+        <p className="muted">Logga träningar, tävlingar och resultat över tid.</p>
+      </header>
+
+      {error && (
+        <div className="card error">
+          <p>{error}</p>
+          <p className="muted">
+            Kontrollera att du har skapat en <code>.env</code>-fil med Supabase-uppgifter (se <code>.env.example</code>)
+            och att SQL-schemat i <code>supabase/schema.sql</code> är kört i ditt Supabase-projekt.
+          </p>
+        </div>
+      )}
+
+      <EventForm
+        onSubmit={async (input) => {
+          await api.createEvent(input)
+          await refresh()
+        }}
+      />
+
+      <ProgressChart events={events} />
+
+      <h2>Alla pass</h2>
+      {loading ? (
+        <p className="muted">Laddar…</p>
+      ) : (
+        <EventList
+          events={events}
+          onDeleteEvent={async (id) => {
+            await api.deleteEvent(id)
+            await refresh()
+          }}
+          onDeleteResult={async (id) => {
+            await api.deleteResult(id)
+            await refresh()
+          }}
+          onAddResult={async (input) => {
+            await api.addResult(input)
+            await refresh()
+          }}
+        />
+      )}
+    </div>
+  )
+}
+
+export default App
