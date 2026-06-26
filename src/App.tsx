@@ -5,6 +5,7 @@ import { EventForm } from './components/EventForm'
 import { EventList } from './components/EventList'
 import { ProgressChart } from './components/ProgressChart'
 import { ReleaseNotesModal } from './components/ReleaseNotesModal'
+import { TargetIcon } from './components/TargetIcon'
 import type { EventWithResults } from './types'
 
 function App() {
@@ -33,7 +34,7 @@ function App() {
     <div className="app">
       <header>
         <div className="header-row">
-          <h1>Luftgevärstracker</h1>
+          <TargetIcon />
           <button type="button" className="release-notes-button" onClick={() => setShowReleaseNotes(true)}>
             Nytt i versionen
           </button>
