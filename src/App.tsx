@@ -4,12 +4,14 @@ import * as api from './api'
 import { EventForm } from './components/EventForm'
 import { EventList } from './components/EventList'
 import { ProgressChart } from './components/ProgressChart'
+import { ReleaseNotesModal } from './components/ReleaseNotesModal'
 import type { EventWithResults } from './types'
 
 function App() {
   const [events, setEvents] = useState<EventWithResults[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [showReleaseNotes, setShowReleaseNotes] = useState(false)
 
   async function refresh() {
     try {
@@ -30,9 +32,16 @@ function App() {
   return (
     <div className="app">
       <header>
-        <h1>Luftgevärstracker</h1>
+        <div className="header-row">
+          <h1>Luftgevärstracker</h1>
+          <button type="button" onClick={() => setShowReleaseNotes(true)}>
+            Nytt i versionen
+          </button>
+        </div>
         <p className="muted">Logga träningar, tävlingar och resultat över tid.</p>
       </header>
+
+      {showReleaseNotes && <ReleaseNotesModal onClose={() => setShowReleaseNotes(false)} />}
 
       {error && (
         <div className="card error">
