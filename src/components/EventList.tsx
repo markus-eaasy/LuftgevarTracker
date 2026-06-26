@@ -85,9 +85,11 @@ export function EventList({ events, onDeleteEvent, onDeleteResult, onAddResult }
               onCancel={() => setAddingResultFor(null)}
             />
           ) : (
-            <button type="button" onClick={() => setAddingResultFor(event.id)}>
-              Lägg till resultat
-            </button>
+            <div className="add-result-button-row">
+              <button type="button" onClick={() => setAddingResultFor(event.id)}>
+                Lägg till resultat
+              </button>
+            </div>
           )}
         </div>
       ))}

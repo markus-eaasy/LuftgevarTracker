@@ -19,6 +19,7 @@ body {
   font-family: system-ui, sans-serif;
   overflow-x: hidden;
   box-sizing: border-box;
+  text-align: left;
 }
 
 @media (max-width: 480px) {
@@ -189,6 +190,10 @@ button.small {
   justify-content: space-between;
   align-items: flex-start;
   gap: 1rem;
+}
+
+.add-result-button-row {
+  text-align: center;
 }
 
 .badge {
