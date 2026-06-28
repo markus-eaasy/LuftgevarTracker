@@ -9,12 +9,17 @@ import { ReleaseNotesModal } from './components/ReleaseNotesModal'
 import { TargetIcon } from './components/TargetIcon'
 import type { EventWithResults } from './types'
 
+type SortOrder = 'asc' | 'desc'
+type ResultFilter = 'alla' | 'tavling' | 'traning'
+
 function App() {
   const [events, setEvents] = useState<EventWithResults[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showReleaseNotes, setShowReleaseNotes] = useState(false)
   const [view, setView] = useState<View>('resultat')
+  const [plannedSortOrder, setPlannedSortOrder] = useState<SortOrder>('asc')
+  const [resultFilter, setResultFilter] = useState<ResultFilter>('alla')
 
   async function refresh() {
     try {
@@ -32,8 +37,18 @@ function App() {
     refresh()
   }, [])
 
-  const plannedEvents = events.filter((event) => event.results.length === 0)
-  const eventsWithResults = events.filter((event) => event.results.length > 0)
+  const plannedEvents = events
+    .filter((event) => event.results.length === 0)
+    .sort((a, b) =>
+      plannedSortOrder === 'asc'
+        ? a.event_date.localeCompare(b.event_date)
+        : b.event_date.localeCompare(a.event_date)
+    )
+
+  const eventsWithResults = events
+    .filter((event) => event.results.length > 0)
+    .filter((event) => resultFilter === 'alla' || event.type === resultFilter)
+    .sort((a, b) => b.event_date.localeCompare(a.event_date))
 
   return (
     <div className="app">
@@ -71,7 +86,17 @@ function App() {
 
       {view === 'planerade-pass' && (
         <>
-          <h2>Planerade pass</h2>
+          <div className="section-header-row">
+            <h2>Planerade pass</h2>
+            <select
+              className="nav-dropdown"
+              value={plannedSortOrder}
+              onChange={(e) => setPlannedSortOrder(e.target.value as SortOrder)}
+            >
+              <option value="asc">Tidigast först</option>
+              <option value="desc">Senast först</option>
+            </select>
+          </div>
           {loading ? (
             <p className="muted">Laddar…</p>
           ) : plannedEvents.length === 0 ? (
@@ -104,7 +129,18 @@ function App() {
         <>
           <ProgressChart events={eventsWithResults} />
 
-          <h2>Resultat</h2>
+          <div className="section-header-row">
+            <h2>Resultat</h2>
+            <select
+              className="nav-dropdown"
+              value={resultFilter}
+              onChange={(e) => setResultFilter(e.target.value as ResultFilter)}
+            >
+              <option value="alla">Alla</option>
+              <option value="tavling">Tävling</option>
+              <option value="traning">Träning</option>
+            </select>
+          </div>
           {loading ? (
             <p className="muted">Laddar…</p>
           ) : eventsWithResults.length === 0 ? (
