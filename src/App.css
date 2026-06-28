@@ -32,6 +32,17 @@ header h1 {
   margin-bottom: 0.25rem;
 }
 
+.section-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.section-header-row h2 {
+  margin: 0;
+}
+
 .header-row {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
