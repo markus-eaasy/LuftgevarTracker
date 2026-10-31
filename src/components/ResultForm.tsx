@@ -4,8 +4,7 @@ interface Props {
   eventId: string
   onSubmit: (input: {
     event_id: string
-    series_count: number
-    shots_per_series: number
+    shooter_name?: string
     total_score: number
     inner_tens?: number
     notes?: string
@@ -14,8 +13,7 @@ interface Props {
 }
 
 export function ResultForm({ eventId, onSubmit, onCancel }: Props) {
-  const [seriesCount, setSeriesCount] = useState(4)
-  const [shotsPerSeries, setShotsPerSeries] = useState(10)
+  const [shooterName, setShooterName] = useState('')
   const [totalScore, setTotalScore] = useState('')
   const [innerTens, setInnerTens] = useState('')
   const [notes, setNotes] = useState('')
@@ -28,8 +26,7 @@ export function ResultForm({ eventId, onSubmit, onCancel }: Props) {
     try {
       await onSubmit({
         event_id: eventId,
-        series_count: seriesCount,
-        shots_per_series: shotsPerSeries,
+        shooter_name: shooterName || undefined,
         total_score: Number(totalScore),
         inner_tens: innerTens ? Number(innerTens) : undefined,
         notes: notes || undefined,
@@ -42,16 +39,22 @@ export function ResultForm({ eventId, onSubmit, onCancel }: Props) {
   return (
     <form className="result-form" onSubmit={handleSubmit}>
       <label>
-        Antal serier
-        <input type="number" min={1} value={seriesCount} onChange={(e) => setSeriesCount(Number(e.target.value))} />
-      </label>
-      <label>
-        Skott per serie
-        <input type="number" min={1} value={shotsPerSeries} onChange={(e) => setShotsPerSeries(Number(e.target.value))} />
+        Skyttens namn
+        <input
+          value={shooterName}
+          onChange={(e) => setShooterName(e.target.value)}
+          placeholder="t.ex. Hans Narup"
+        />
       </label>
       <label>
         Totalpoäng
-        <input type="number" step="0.1" value={totalScore} onChange={(e) => setTotalScore(e.target.value)} required />
+        <input
+          type="number"
+          step="0.1"
+          value={totalScore}
+          onChange={(e) => setTotalScore(e.target.value)}
+          required
+        />
       </label>
       <label>
         Antal inner-tior

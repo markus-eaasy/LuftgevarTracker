@@ -38,8 +38,9 @@ function App() {
         <div className="card error">
           <p>{error}</p>
           <p className="muted">
-            Kontrollera att du har skapat en <code>.env</code>-fil med Supabase-uppgifter (se <code>.env.example</code>)
-            och att SQL-schemat i <code>supabase/schema.sql</code> är kört i ditt Supabase-projekt.
+            Kontrollera att du har skapat en <code>.env</code>-fil med Supabase-uppgifter (se{' '}
+            <code>.env.example</code>) och att SQL-schemat i <code>supabase/schema.sql</code> är kört i
+            ditt Supabase-projekt.
           </p>
         </div>
       )}
@@ -71,6 +72,7 @@ function App() {
             await api.addResult(input)
             await refresh()
           }}
+          onRefresh={refresh}
         />
       )}
     </div>

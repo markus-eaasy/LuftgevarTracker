@@ -14,8 +14,13 @@ create table if not exists events (
 create table if not exists results (
   id uuid primary key default gen_random_uuid(),
   event_id uuid not null references events(id) on delete cascade,
-  series_count int not null default 10,
-  shots_per_series int not null default 10,
+  shooter_name text,
+  shooter_nr int,
+  bana int,
+  serie text,
+  series_scores jsonb,           -- t.ex. [42, 44, 40, 42]
+  series_count int not null default 4,
+  shots_per_series int not null default 5,
   total_score numeric not null,
   inner_tens int,
   notes text,
