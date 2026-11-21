@@ -18,6 +18,7 @@ function App() {
   const [error, setError] = useState<string | null>(null)
   const [showReleaseNotes, setShowReleaseNotes] = useState(false)
   const [view, setView] = useState<View>('resultat')
+  const [newEventId, setNewEventId] = useState<string | null>(null)
   const [plannedSortOrder, setPlannedSortOrder] = useState<SortOrder>('asc')
   const [resultFilter, setResultFilter] = useState<ResultFilter>('alla')
 
@@ -78,8 +79,10 @@ function App() {
       {view === 'nytt-pass' && (
         <EventForm
           onSubmit={async (input) => {
-            await api.createEvent(input)
+            const event = await api.createEvent(input)
             await refresh()
+            setNewEventId(event.id)
+            setView('resultat')
           }}
         />
       )}
@@ -166,6 +169,8 @@ function App() {
                 await refresh()
               }}
               onRefresh={refresh}
+              autoOpenImageFor={newEventId}
+              onAutoOpenDone={() => setNewEventId(null)}
             />
           )}
         </>
