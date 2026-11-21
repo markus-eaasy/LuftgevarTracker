@@ -120,6 +120,7 @@ function App() {
                 await api.updateResult(id, input)
                 await refresh()
               }}
+              onRefresh={refresh}
             />
           )}
         </>
@@ -164,6 +165,7 @@ function App() {
                 await api.updateResult(id, input)
                 await refresh()
               }}
+              onRefresh={refresh}
             />
           )}
         </>

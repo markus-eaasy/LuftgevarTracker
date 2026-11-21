@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { EventWithResults } from '../types'
+import { ImageResultUpload } from './ImageResultUpload'
 import { ResultForm } from './ResultForm'
 
 interface Props {
@@ -8,8 +9,7 @@ interface Props {
   onDeleteResult: (id: string) => Promise<void>
   onAddResult: (input: {
     event_id: string
-    series_count: number
-    shots_per_series: number
+    shooter_name?: string
     total_score: number
     inner_tens?: number
     notes?: string
@@ -24,12 +24,14 @@ interface Props {
       notes?: string
     },
   ) => Promise<void>
+  onRefresh: () => Promise<void>
 }
 
 type PendingDelete = { kind: 'event' | 'result'; id: string }
+type AddMode = 'image' | 'manual' | null
 
-export function EventList({ events, onDeleteEvent, onDeleteResult, onAddResult, onEditResult }: Props) {
-  const [addingResultFor, setAddingResultFor] = useState<string | null>(null)
+export function EventList({ events, onDeleteEvent, onDeleteResult, onAddResult, onEditResult, onRefresh }: Props) {
+  const [addingFor, setAddingFor] = useState<{ id: string; mode: AddMode }>({ id: '', mode: null })
   const [editingResultId, setEditingResultId] = useState<string | null>(null)
   const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null)
 
@@ -45,6 +47,13 @@ export function EventList({ events, onDeleteEvent, onDeleteResult, onAddResult, 
       await onDeleteResult(pendingDelete.id)
     }
     setPendingDelete(null)
+  }
+
+  function formatResult(result: EventWithResults['results'][0]) {
+    if (result.series_scores && result.series_scores.length > 0) {
+      return `${result.series_scores.join(' + ')} = ${result.total_score}`
+    }
+    return String(result.total_score)
   }
 
   return (
@@ -83,7 +92,7 @@ export function EventList({ events, onDeleteEvent, onDeleteResult, onAddResult, 
             </div>
             <button
               type="button"
-              className="danger"
+              className="danger small"
               onClick={() => setPendingDelete({ kind: 'event', id: event.id })}
             >
               Ta bort
@@ -92,41 +101,38 @@ export function EventList({ events, onDeleteEvent, onDeleteResult, onAddResult, 
 
           {event.results.length > 0 && (
             <div className="results-table-wrapper">
-            <table className="results-table">
-              <thead>
-                <tr>
-                  <th>Serier</th>
-                  <th>Skott/serie</th>
-                  <th>Totalpoäng</th>
-                  <th>Inner-tior</th>
-                  <th>Anteckningar</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {event.results.map((result) => (
-                  <tr key={result.id}>
-                    <td>{result.series_count}</td>
-                    <td>{result.shots_per_series}</td>
-                    <td>{result.total_score}</td>
-                    <td>{result.inner_tens ?? '-'}</td>
-                    <td>{result.notes ?? '-'}</td>
-                    <td>
-                      <button type="button" className="small" onClick={() => setEditingResultId(result.id)}>
-                        Ändra resultat
-                      </button>
-                      <button
-                        type="button"
-                        className="danger small"
-                        onClick={() => setPendingDelete({ kind: 'result', id: result.id })}
-                      >
-                        Ta bort
-                      </button>
-                    </td>
+              <table className="results-table">
+                <thead>
+                  <tr>
+                    <th>Nr</th>
+                    <th>Namn</th>
+                    <th>Bana</th>
+                    <th>Resultat</th>
+                    <th>Tior</th>
+                    <th></th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {event.results.map((result) => (
+                    <tr key={result.id}>
+                      <td>{result.shooter_nr ?? '–'}</td>
+                      <td>{result.shooter_name ?? '–'}</td>
+                      <td>{result.bana ?? '–'}</td>
+                      <td>{formatResult(result)}</td>
+                      <td>{result.inner_tens ?? '–'}</td>
+                      <td>
+                        <button
+                          type="button"
+                          className="danger small"
+                          onClick={() => setPendingDelete({ kind: 'result', id: result.id })}
+                        >
+                          Ta bort
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
 
@@ -145,26 +151,58 @@ export function EventList({ events, onDeleteEvent, onDeleteResult, onAddResult, 
                   notes: result.notes ?? undefined,
                 }}
                 onSubmit={async (input) => {
-                  await onEditResult(result.id, input)
+                  await onEditResult(result.id, {
+                    series_count: input.series_count ?? result.series_count,
+                    shots_per_series: input.shots_per_series ?? result.shots_per_series,
+                    total_score: input.total_score,
+                    inner_tens: input.inner_tens,
+                    notes: input.notes,
+                  })
                   setEditingResultId(null)
                 }}
                 onCancel={() => setEditingResultId(null)}
               />
             ))}
 
-          {addingResultFor === event.id ? (
+          {addingFor.id === event.id && addingFor.mode === 'image' && (
+            <ImageResultUpload
+              eventId={event.id}
+              onSaved={async () => {
+                setAddingFor({ id: '', mode: null })
+                await onRefresh()
+              }}
+              onCancel={() => setAddingFor({ id: '', mode: null })}
+            />
+          )}
+
+          {addingFor.id === event.id && addingFor.mode === 'manual' && (
             <ResultForm
               eventId={event.id}
               onSubmit={async (input) => {
-                await onAddResult(input)
-                setAddingResultFor(null)
+                await onAddResult({
+                  event_id: input.event_id,
+                  shooter_name: input.shooter_name,
+                  total_score: input.total_score,
+                  inner_tens: input.inner_tens,
+                  notes: input.notes,
+                })
+                setAddingFor({ id: '', mode: null })
               }}
-              onCancel={() => setAddingResultFor(null)}
+              onCancel={() => setAddingFor({ id: '', mode: null })}
             />
-          ) : (
-            <div className="add-result-button-row">
-              <button type="button" onClick={() => setAddingResultFor(event.id)}>
-                Lägg till resultat
+          )}
+
+          {addingFor.id !== event.id && (
+            <div className="button-row">
+              <button type="button" onClick={() => setAddingFor({ id: event.id, mode: 'image' })}>
+                📷 Ladda upp bild
+              </button>
+              <button
+                type="button"
+                className="secondary"
+                onClick={() => setAddingFor({ id: event.id, mode: 'manual' })}
+              >
+                + Lägg till manuellt
               </button>
             </div>
           )}
