@@ -5,7 +5,6 @@ import { EventForm } from './components/EventForm'
 import { EventList } from './components/EventList'
 import { NavDropdown, type View } from './components/NavDropdown'
 import { Leaderboard } from './components/Leaderboard'
-import { ProgressChart } from './components/ProgressChart'
 import { ReleaseNotesModal } from './components/ReleaseNotesModal'
 import { TargetIcon } from './components/TargetIcon'
 import type { EventWithResults } from './types'
@@ -78,16 +77,9 @@ function App() {
         />
       )}
 
-      {view === 'leaderboard' && (
-        <>
-          <h2>Leaderboard</h2>
-          {loading ? <p className="muted">Laddar…</p> : <Leaderboard events={events} />}
-        </>
-      )}
-
       {view === 'resultat' && (
         <>
-          <ProgressChart events={eventsWithResults} />
+          <Leaderboard events={events} />
 
           <div className="section-header-row">
             <h2>Resultat</h2>

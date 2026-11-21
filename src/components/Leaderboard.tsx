@@ -14,8 +14,6 @@ type ShooterStats = {
   latestDate: string
 }
 
-const MEDALS = ['🥇', '🥈', '🥉']
-
 export function Leaderboard({ events }: Props) {
   const allResults = events.flatMap((e) =>
     e.results.map((r) => ({ ...r, event_date: e.event_date, event_type: e.type }))
@@ -42,7 +40,11 @@ export function Leaderboard({ events }: Props) {
     }
   })
 
-  stats.sort((a, b) => b.bestScore - a.bestScore || b.avgScore - a.avgScore)
+  stats.sort((a, b) =>
+    b.bestScore - a.bestScore ||
+    (b.bestInnerTens ?? -1) - (a.bestInnerTens ?? -1) ||
+    b.avgScore - a.avgScore
+  )
 
   if (stats.length === 0) {
     return <p className="muted">Inga resultat registrerade ännu.</p>
@@ -50,15 +52,25 @@ export function Leaderboard({ events }: Props) {
 
   const best = stats[0].bestScore
 
+  const bestAvg = [...stats].sort((a, b) => b.avgScore - a.avgScore)[0]
+  const bestTior = [...stats].filter((s) => s.bestInnerTens != null).sort((a, b) => (b.bestInnerTens ?? 0) - (a.bestInnerTens ?? 0))[0]
+
+  const podiums = [
+    { label: 'Bästa poäng', name: stats[0].namn, value: stats[0].bestScore, unit: 'poäng' },
+    { label: 'Bästa snitt', name: bestAvg.namn, value: bestAvg.avgScore, unit: 'snitt' },
+    ...(bestTior ? [{ label: 'Flest tior', name: bestTior.namn, value: bestTior.bestInnerTens!, unit: 'tior' }] : []),
+  ]
+
   return (
     <div className="leaderboard">
       <div className="podium-row">
-        {stats.slice(0, 3).map((s, i) => (
-          <div key={s.namn} className={`podium-card podium-${i + 1}`}>
-            <div className="podium-medal">{MEDALS[i]}</div>
-            <div className="podium-name">{s.namn}</div>
-            <div className="podium-score">{s.bestScore}</div>
-            <div className="podium-label">bästa poäng</div>
+        {podiums.map((p) => (
+          <div key={p.label} className="podium-card podium-gold">
+            <div className="podium-medal">🥇</div>
+            <div className="podium-category">{p.label}</div>
+            <div className="podium-name">{p.name}</div>
+            <div className="podium-score">{p.value}</div>
+            <div className="podium-label">{p.unit}</div>
           </div>
         ))}
       </div>
@@ -79,7 +91,7 @@ export function Leaderboard({ events }: Props) {
           <tbody>
             {stats.map((s, i) => (
               <tr key={s.namn} className={i < 3 ? 'top-three' : undefined}>
-                <td className="rank-cell">{MEDALS[i] ?? i + 1}</td>
+                <td className="rank-cell">{i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1}</td>
                 <td className="name-cell">{s.namn}</td>
                 <td>
                   <span className="score-bar-wrap">
