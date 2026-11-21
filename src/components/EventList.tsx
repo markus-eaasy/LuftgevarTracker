@@ -25,13 +25,15 @@ interface Props {
     },
   ) => Promise<void>
   onRefresh: () => Promise<void>
+  autoOpenImageFor?: string | null
+  onAutoOpenDone?: () => void
 }
 
 type PendingDelete = { kind: 'event' | 'result'; id: string }
 type AddMode = 'image' | 'manual' | null
 
-export function EventList({ events, onDeleteEvent, onDeleteResult, onAddResult, onEditResult, onRefresh }: Props) {
-  const [addingFor, setAddingFor] = useState<{ id: string; mode: AddMode }>({ id: '', mode: null })
+export function EventList({ events, onDeleteEvent, onDeleteResult, onAddResult, onEditResult, onRefresh, autoOpenImageFor }: Props) {
+  const [addingFor, setAddingFor] = useState<{ id: string; mode: AddMode }>({ id: autoOpenImageFor ?? '', mode: autoOpenImageFor ? 'image' : null })
   const [editingResultId, setEditingResultId] = useState<string | null>(null)
   const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null)
 
