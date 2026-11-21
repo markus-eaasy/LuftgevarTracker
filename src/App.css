@@ -317,16 +317,29 @@ button.small + button.small {
   flex: 1;
   min-width: 0;
 }
-.event-header-top {
+.event-header-row {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.25rem;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.event-title-inline {
+  font-weight: 600;
+  font-size: 1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.event-meta-inline {
+  font-size: 0.85rem;
+  white-space: nowrap;
 }
 .event-collapse-arrow {
   font-size: 0.7rem;
   color: #6b7280;
   margin-left: auto;
+  flex-shrink: 0;
 }
 
 /* ── Leaderboard ── */

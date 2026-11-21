@@ -92,17 +92,15 @@ export function EventList({ events, onDeleteEvent, onDeleteResult, onAddResult, 
         return (
         <div className="card event-card" key={event.id}>
           <div className="event-header event-header-clickable" onClick={toggle}>
-            <div className="event-header-info">
-              <div className="event-header-top">
-                <span className={`badge ${event.type}`}>{event.type === 'traning' ? 'Träning' : 'Tävling'}</span>
-                <span className="event-collapse-arrow">{isExpanded ? '▲' : '▼'}</span>
-              </div>
-              <h3>{event.title}</h3>
-              <p className="muted">
+            <div className="event-header-info event-header-row">
+              <span className={`badge ${event.type}`}>{event.type === 'traning' ? 'Träning' : 'Tävling'}</span>
+              <span className="event-title-inline">{event.title}</span>
+              <span className="event-meta-inline muted">
                 {event.event_date}
                 {event.location ? ` · ${event.location}` : ''}
                 {event.results.length > 0 ? ` · ${event.results.length} skytt${event.results.length !== 1 ? 'ar' : ''}` : ''}
-              </p>
+              </span>
+              <span className="event-collapse-arrow">{isExpanded ? '▲' : '▼'}</span>
             </div>
             <button
               type="button"
