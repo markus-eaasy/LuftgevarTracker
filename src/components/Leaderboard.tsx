@@ -42,7 +42,11 @@ export function Leaderboard({ events }: Props) {
     }
   })
 
-  stats.sort((a, b) => b.bestScore - a.bestScore || b.avgScore - a.avgScore)
+  stats.sort((a, b) =>
+    b.bestScore - a.bestScore ||
+    (b.bestInnerTens ?? -1) - (a.bestInnerTens ?? -1) ||
+    b.avgScore - a.avgScore
+  )
 
   if (stats.length === 0) {
     return <p className="muted">Inga resultat registrerade ännu.</p>
