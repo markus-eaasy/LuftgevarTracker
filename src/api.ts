@@ -101,10 +101,18 @@ export async function parseResultImage(
   imageBase64: string,
   mediaType: string
 ): Promise<ParsedShooterResult[]> {
-  const { data, error } = await supabase.functions.invoke('parse-result-image', {
-    body: { image_base64: imageBase64, media_type: mediaType },
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+  const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+  const res = await fetch(`${supabaseUrl}/functions/v1/parse-result-image`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${supabaseKey}`,
+      'apikey': supabaseKey,
+    },
+    body: JSON.stringify({ image_base64: imageBase64, media_type: mediaType }),
   })
-  if (error) throw new Error(error.message)
-  if (data.error) throw new Error(data.error)
+  const data = await res.json()
+  if (!res.ok || data.error) throw new Error(data.error ?? 'Fel vid bildanalys')
   return data.results as ParsedShooterResult[]
 }
