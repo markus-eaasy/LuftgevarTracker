@@ -9,7 +9,6 @@ import { ReleaseNotesModal } from './components/ReleaseNotesModal'
 import { TargetIcon } from './components/TargetIcon'
 import type { EventWithResults } from './types'
 
-type SortOrder = 'asc' | 'desc'
 type ResultFilter = 'alla' | 'tavling' | 'traning'
 
 function App() {
@@ -19,7 +18,6 @@ function App() {
   const [showReleaseNotes, setShowReleaseNotes] = useState(false)
   const [view, setView] = useState<View>('resultat')
   const [newEventId, setNewEventId] = useState<string | null>(null)
-  const [plannedSortOrder, setPlannedSortOrder] = useState<SortOrder>('asc')
   const [resultFilter, setResultFilter] = useState<ResultFilter>('alla')
 
   async function refresh() {
@@ -37,14 +35,6 @@ function App() {
   useEffect(() => {
     refresh()
   }, [])
-
-  const plannedEvents = events
-    .filter((event) => event.results.length === 0)
-    .sort((a, b) =>
-      plannedSortOrder === 'asc'
-        ? a.event_date.localeCompare(b.event_date)
-        : b.event_date.localeCompare(a.event_date)
-    )
 
   const eventsWithResults = events
     .filter((event) => event.results.length > 0 || event.id === newEventId)
@@ -87,49 +77,7 @@ function App() {
         />
       )}
 
-      {view === 'planerade-pass' && (
-        <>
-          <div className="section-header-row">
-            <h2>Planerade pass</h2>
-            <select
-              className="nav-dropdown"
-              value={plannedSortOrder}
-              onChange={(e) => setPlannedSortOrder(e.target.value as SortOrder)}
-            >
-              <option value="asc">Tidigast först</option>
-              <option value="desc">Senast först</option>
-            </select>
-          </div>
-          {loading ? (
-            <p className="muted">Laddar…</p>
-          ) : plannedEvents.length === 0 ? (
-            <p className="muted">Inga planerade pass. Lägg till ett under "Nytt pass".</p>
-          ) : (
-            <EventList
-              events={plannedEvents}
-              onDeleteEvent={async (id) => {
-                await api.deleteEvent(id)
-                await refresh()
-              }}
-              onDeleteResult={async (id) => {
-                await api.deleteResult(id)
-                await refresh()
-              }}
-              onAddResult={async (input) => {
-                await api.addResult(input)
-                await refresh()
-              }}
-              onEditResult={async (id, input) => {
-                await api.updateResult(id, input)
-                await refresh()
-              }}
-              onRefresh={refresh}
-            />
-          )}
-        </>
-      )}
-
-      {view === 'resultat' && (
+{view === 'resultat' && (
         <>
           <ProgressChart events={eventsWithResults} />
 
