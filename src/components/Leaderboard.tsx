@@ -151,7 +151,8 @@ export function Leaderboard({ events }: Props) {
       </div>
 
       {selected && (
-        <div className="shooter-detail">
+        <div className="modal-overlay" onClick={() => setSelected(null)}>
+        <div className="shooter-detail" onClick={(e) => e.stopPropagation()}>
           <div className="shooter-detail-header">
             <h3>{selected}</h3>
             <button className="close-btn" onClick={() => setSelected(null)}>✕</button>
@@ -194,6 +195,7 @@ export function Leaderboard({ events }: Props) {
               </tbody>
             </table>
           </div>
+        </div>
         </div>
       )}
     </div>
