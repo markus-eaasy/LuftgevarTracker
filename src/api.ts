@@ -101,12 +101,10 @@ export async function parseResultImage(
   imageBase64: string,
   mediaType: string
 ): Promise<ParsedShooterResult[]> {
-  const res = await fetch('/api/parse-result-image', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ image_base64: imageBase64, media_type: mediaType }),
+  const { data, error } = await supabase.functions.invoke('parse-result-image', {
+    body: { image_base64: imageBase64, media_type: mediaType },
   })
-  const data = await res.json()
-  if (!res.ok || data.error) throw new Error(data.error ?? 'Fel vid bildanalys')
+  if (error) throw new Error(error.message)
+  if (data.error) throw new Error(data.error)
   return data.results as ParsedShooterResult[]
 }
