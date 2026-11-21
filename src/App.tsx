@@ -47,7 +47,7 @@ function App() {
     )
 
   const eventsWithResults = events
-    .filter((event) => event.results.length > 0)
+    .filter((event) => event.results.length > 0 || event.id === newEventId)
     .filter((event) => resultFilter === 'alla' || event.type === resultFilter)
     .sort((a, b) => b.event_date.localeCompare(a.event_date))
 
