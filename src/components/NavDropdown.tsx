@@ -1,4 +1,4 @@
-export type View = 'nytt-pass' | 'planerade-pass' | 'resultat'
+export type View = 'nytt-pass' | 'resultat'
 
 interface Props {
   value: View
@@ -7,7 +7,6 @@ interface Props {
 
 const options: { value: View; label: string }[] = [
   { value: 'nytt-pass', label: 'Nytt pass' },
-  { value: 'planerade-pass', label: 'Planerade pass' },
   { value: 'resultat', label: 'Resultat' },
 ]
 
