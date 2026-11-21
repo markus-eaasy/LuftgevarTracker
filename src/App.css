@@ -451,11 +451,14 @@ button.small + button.small {
 }
 
 .shooter-detail {
-  margin-top: 1rem;
   background: var(--card-bg, #fff);
   border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  padding: 1rem 1.25rem 1.25rem;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem 1.5rem;
+  width: 100%;
+  max-width: 560px;
+  max-height: 85vh;
+  overflow-y: auto;
 }
 .shooter-detail-header {
   display: flex;

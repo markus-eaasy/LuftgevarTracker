@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import type { EventWithResults } from '../types'
 
 interface Props {
@@ -151,7 +151,8 @@ export function Leaderboard({ events }: Props) {
       </div>
 
       {selected && (
-        <div className="shooter-detail">
+        <div className="modal-overlay" onClick={() => setSelected(null)}>
+        <div className="shooter-detail" onClick={(e) => e.stopPropagation()}>
           <div className="shooter-detail-header">
             <h3>{selected}</h3>
             <button className="close-btn" onClick={() => setSelected(null)}>✕</button>
@@ -164,7 +165,9 @@ export function Leaderboard({ events }: Props) {
                 <XAxis dataKey="datum" tick={{ fontSize: 11 }} />
                 <YAxis domain={['auto', 'auto']} tick={{ fontSize: 11 }} width={36} />
                 <Tooltip labelFormatter={(l) => `Datum: ${l}`} />
+                <Legend formatter={(v) => v === 'poäng' ? 'Poäng' : 'Tior'} />
                 <Line type="monotone" dataKey="poäng" stroke="#3b82f6" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                <Line type="monotone" dataKey="tior" stroke="#f59e0b" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} />
               </LineChart>
             </ResponsiveContainer>
           ) : (
@@ -194,6 +197,7 @@ export function Leaderboard({ events }: Props) {
               </tbody>
             </table>
           </div>
+        </div>
         </div>
       )}
     </div>
