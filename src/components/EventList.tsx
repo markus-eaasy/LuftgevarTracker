@@ -36,6 +36,7 @@ export function EventList({ events, onDeleteEvent, onDeleteResult, onAddResult, 
   const [addingFor, setAddingFor] = useState<{ id: string; mode: AddMode }>({ id: autoOpenImageFor ?? '', mode: autoOpenImageFor ? 'image' : null })
   const [editingResultId, setEditingResultId] = useState<string | null>(null)
   const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null)
+  const [expanded, setExpanded] = useState<Set<string>>(() => new Set(autoOpenImageFor ? [autoOpenImageFor] : []))
 
   if (events.length === 0) {
     return <p className="muted">Inga pass tillagda ännu. Lägg till en träning eller tävling ovan.</p>
@@ -80,28 +81,41 @@ export function EventList({ events, onDeleteEvent, onDeleteResult, onAddResult, 
         </div>
       )}
 
-      {events.map((event) => (
+      {events.map((event) => {
+        const isExpanded = expanded.has(event.id)
+        const toggle = () => setExpanded((prev) => {
+          const next = new Set(prev)
+          if (next.has(event.id)) next.delete(event.id)
+          else next.add(event.id)
+          return next
+        })
+        return (
         <div className="card event-card" key={event.id}>
-          <div className="event-header">
-            <div>
-              <span className={`badge ${event.type}`}>{event.type === 'traning' ? 'Träning' : 'Tävling'}</span>
+          <div className="event-header event-header-clickable" onClick={toggle}>
+            <div className="event-header-info">
+              <div className="event-header-top">
+                <span className={`badge ${event.type}`}>{event.type === 'traning' ? 'Träning' : 'Tävling'}</span>
+                <span className="event-collapse-arrow">{isExpanded ? '▲' : '▼'}</span>
+              </div>
               <h3>{event.title}</h3>
               <p className="muted">
                 {event.event_date}
                 {event.location ? ` · ${event.location}` : ''}
+                {event.results.length > 0 ? ` · ${event.results.length} skytt${event.results.length !== 1 ? 'ar' : ''}` : ''}
               </p>
-              {event.notes && <p className="muted">{event.notes}</p>}
             </div>
             <button
               type="button"
               className="danger small"
-              onClick={() => setPendingDelete({ kind: 'event', id: event.id })}
+              onClick={(e) => { e.stopPropagation(); setPendingDelete({ kind: 'event', id: event.id }) }}
             >
               Ta bort
             </button>
           </div>
 
-          {event.results.length > 0 && (
+          {isExpanded && event.notes && <p className="muted" style={{ marginTop: '0.25rem' }}>{event.notes}</p>}
+
+          {isExpanded && event.results.length > 0 && (
             <div className="results-table-wrapper">
               <table className="results-table">
                 <thead>
@@ -138,7 +152,7 @@ export function EventList({ events, onDeleteEvent, onDeleteResult, onAddResult, 
             </div>
           )}
 
-          {event.results
+          {isExpanded && event.results
             .filter((result) => result.id === editingResultId)
             .map((result) => (
               <ResultForm
@@ -166,7 +180,7 @@ export function EventList({ events, onDeleteEvent, onDeleteResult, onAddResult, 
               />
             ))}
 
-          {addingFor.id === event.id && addingFor.mode === 'image' && (
+          {isExpanded && addingFor.id === event.id && addingFor.mode === 'image' && (
             <ImageResultUpload
               eventId={event.id}
               onSaved={async () => {
@@ -177,7 +191,7 @@ export function EventList({ events, onDeleteEvent, onDeleteResult, onAddResult, 
             />
           )}
 
-          {addingFor.id === event.id && addingFor.mode === 'manual' && (
+          {isExpanded && addingFor.id === event.id && addingFor.mode === 'manual' && (
             <ResultForm
               eventId={event.id}
               onSubmit={async (input) => {
@@ -194,7 +208,7 @@ export function EventList({ events, onDeleteEvent, onDeleteResult, onAddResult, 
             />
           )}
 
-          {addingFor.id !== event.id && (
+          {isExpanded && addingFor.id !== event.id && (
             <div className="button-row">
               <button type="button" onClick={() => setAddingFor({ id: event.id, mode: 'image' })}>
                 📷 Ladda upp bild
@@ -209,7 +223,8 @@ export function EventList({ events, onDeleteEvent, onDeleteResult, onAddResult, 
             </div>
           )}
         </div>
-      ))}
+        )
+      })}
     </div>
   )
 }
