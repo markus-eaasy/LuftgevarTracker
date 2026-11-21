@@ -1,4 +1,4 @@
-export type View = 'nytt-pass' | 'resultat'
+export type View = 'nytt-pass' | 'resultat' | 'leaderboard'
 
 interface Props {
   value: View
@@ -8,6 +8,7 @@ interface Props {
 const options: { value: View; label: string }[] = [
   { value: 'nytt-pass', label: 'Nytt pass' },
   { value: 'resultat', label: 'Resultat' },
+  { value: 'leaderboard', label: '🏆 Leaderboard' },
 ]
 
 export function NavDropdown({ value, onChange }: Props) {

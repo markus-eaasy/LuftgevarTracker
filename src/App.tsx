@@ -4,6 +4,7 @@ import * as api from './api'
 import { EventForm } from './components/EventForm'
 import { EventList } from './components/EventList'
 import { NavDropdown, type View } from './components/NavDropdown'
+import { Leaderboard } from './components/Leaderboard'
 import { ProgressChart } from './components/ProgressChart'
 import { ReleaseNotesModal } from './components/ReleaseNotesModal'
 import { TargetIcon } from './components/TargetIcon'
@@ -77,7 +78,14 @@ function App() {
         />
       )}
 
-{view === 'resultat' && (
+      {view === 'leaderboard' && (
+        <>
+          <h2>Leaderboard</h2>
+          {loading ? <p className="muted">Laddar…</p> : <Leaderboard events={events} />}
+        </>
+      )}
+
+      {view === 'resultat' && (
         <>
           <ProgressChart events={eventsWithResults} />
 
