@@ -189,6 +189,29 @@ export function Leaderboard({ events }: Props) {
             <button className="close-btn" onClick={() => setSelected(null)}>✕</button>
           </div>
 
+          {chartData.length >= 2 && (() => {
+            const first = chartData[0], last = chartData[chartData.length - 1]
+            const slopeP = last.trendP - first.trendP
+            const slopeT = last.trendT - first.trendT
+            const arrow = (s: number) => s > 0.3 ? '↑' : s < -0.3 ? '↓' : '→'
+            const color = (s: number) => s > 0.3 ? '#16a34a' : s < -0.3 ? '#dc2626' : '#6b7280'
+            const label = (s: number) => s > 0.3 ? 'Positiv trend' : s < -0.3 ? 'Negativ trend' : 'Stabil'
+            return (
+              <div style={{ display: 'flex', gap: '1.5rem', margin: '0 0 1rem' }}>
+                <div>
+                  <span style={{ fontSize: '0.72rem', color: '#6b7280', display: 'block' }}>Poängtrend</span>
+                  <span style={{ fontSize: '1.6rem', color: color(slopeP), lineHeight: 1 }}>{arrow(slopeP)}</span>
+                  <span style={{ fontSize: '0.72rem', color: color(slopeP) }}>{label(slopeP)}</span>
+                </div>
+                <div>
+                  <span style={{ fontSize: '0.72rem', color: '#6b7280', display: 'block' }}>Tiortrend</span>
+                  <span style={{ fontSize: '1.6rem', color: color(slopeT), lineHeight: 1 }}>{arrow(slopeT)}</span>
+                  <span style={{ fontSize: '0.72rem', color: color(slopeT) }}>{label(slopeT)}</span>
+                </div>
+              </div>
+            )
+          })()}
+
           {chartData.length >= 2 ? (
             <>
               <p style={{ margin: '0 0 0.25rem', fontWeight: 600, fontSize: '0.85rem', color: '#3b82f6' }}>Poäng</p>
