@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import type { EventWithResults } from '../types'
 
 interface Props {
@@ -159,17 +159,28 @@ export function Leaderboard({ events }: Props) {
           </div>
 
           {chartData.length >= 2 ? (
-            <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis dataKey="datum" tick={{ fontSize: 11 }} />
-                <YAxis domain={['auto', 'auto']} tick={{ fontSize: 11 }} width={36} />
-                <Tooltip labelFormatter={(l) => `Datum: ${l}`} />
-                <Legend formatter={(v) => v === 'poäng' ? 'Poäng' : 'Tior'} />
-                <Line type="monotone" dataKey="poäng" stroke="#3b82f6" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-                <Line type="monotone" dataKey="tior" stroke="#f59e0b" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} />
-              </LineChart>
-            </ResponsiveContainer>
+            <>
+              <p style={{ margin: '0 0 0.25rem', fontWeight: 600, fontSize: '0.85rem', color: '#3b82f6' }}>Poäng</p>
+              <ResponsiveContainer width="100%" height={160}>
+                <LineChart data={chartData} margin={{ top: 4, right: 16, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis dataKey="datum" tick={{ fontSize: 10 }} />
+                  <YAxis domain={[150, 'auto']} tick={{ fontSize: 10 }} width={36} />
+                  <Tooltip labelFormatter={(l) => `Datum: ${l}`} />
+                  <Line type="monotone" dataKey="poäng" stroke="#3b82f6" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} name="Poäng" />
+                </LineChart>
+              </ResponsiveContainer>
+              <p style={{ margin: '1rem 0 0.25rem', fontWeight: 600, fontSize: '0.85rem', color: '#f59e0b' }}>Tior</p>
+              <ResponsiveContainer width="100%" height={160}>
+                <LineChart data={chartData} margin={{ top: 4, right: 16, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis dataKey="datum" tick={{ fontSize: 10 }} />
+                  <YAxis domain={[0, 20]} tick={{ fontSize: 10 }} width={36} />
+                  <Tooltip labelFormatter={(l) => `Datum: ${l}`} />
+                  <Line type="monotone" dataKey="tior" stroke="#f59e0b" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} name="Tior" />
+                </LineChart>
+              </ResponsiveContainer>
+            </>
           ) : (
             <p className="muted">Minst 2 resultat krävs för att visa diagram.</p>
           )}
