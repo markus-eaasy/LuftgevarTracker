@@ -6,6 +6,17 @@ export interface ReleaseNote {
 // Håll denna i synk med CHANGELOG.md
 export const releaseNotes: ReleaseNote[] = [
   {
+    date: '2026-11-22',
+    items: [
+      'Ledartavla med podium (Bästa poäng, Bästa snitt, Flest tior) och rankingtabell ersätter det gamla diagrammet i Resultat-vyn.',
+      'Klicka på ett namn i ledartavlan för att se skyttens utveckling i en popup.',
+      'Popupen visar trendindikatorer (↑↓→) för poäng och tior baserat på linjär regression.',
+      'Grafen i popupen visar rådata, löpande viktat medelvärde (EWA) och linjär trendlinje — separata rutor för poäng och tior.',
+      'Passkorten är nu ihopfällda som standard — klicka för att öppna.',
+      'Bildanalys (OCR) flyttad till Vercel serverless-funktion för snabbare och mer tillförlitlig tolkning.',
+    ],
+  },
+  {
     date: '2026-06-28',
     items: [
       'Lade till ikon för luftgevärsskytte istället för textrubrik, samt dropdown-meny i headern för att växla mellan "Nytt pass", "Planerade pass" och "Resultat".',
