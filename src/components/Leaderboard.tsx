@@ -81,12 +81,43 @@ export function Leaderboard({ events }: Props) {
     ? (byShooter.get(selected) ?? []).slice().sort((a, b) => a.event_date.localeCompare(b.event_date))
     : []
 
-  const chartData = selectedResults.map((r, i) => ({
-    nr: i + 1,
-    datum: r.event_date,
-    poäng: r.total_score,
-    tior: r.inner_tens,
-  }))
+  // EWA alpha: recent sessions weigh more, older fade gradually
+  const ALPHA = 0.3
+
+  function addTrends(data: { poäng: number; tior: number | null }[]) {
+    // EWA
+    let ewaP = data[0]?.poäng ?? 0
+    let ewaT = data[0]?.tior ?? 0
+    // Linear regression
+    const n = data.length
+    const xs = data.map((_, i) => i)
+    const sumX = xs.reduce((a, b) => a + b, 0)
+    const sumX2 = xs.reduce((a, b) => a + b * b, 0)
+    const sumYp = data.reduce((a, b) => a + b.poäng, 0)
+    const sumYt = data.reduce((a, b) => a + (b.tior ?? 0), 0)
+    const slopeP = (n * data.reduce((a, b, i) => a + i * b.poäng, 0) - sumX * sumYp) / (n * sumX2 - sumX * sumX)
+    const slopeT = (n * data.reduce((a, b, i) => a + i * (b.tior ?? 0), 0) - sumX * sumYt) / (n * sumX2 - sumX * sumX)
+    const intP = (sumYp - slopeP * sumX) / n
+    const intT = (sumYt - slopeT * sumX) / n
+
+    return data.map((r, i) => {
+      if (i > 0) {
+        ewaP = ALPHA * r.poäng + (1 - ALPHA) * ewaP
+        ewaT = ALPHA * (r.tior ?? ewaT) + (1 - ALPHA) * ewaT
+      }
+      return {
+        ...r,
+        ewaP: Math.round(ewaP * 10) / 10,
+        ewaT: Math.round(ewaT * 10) / 10,
+        trendP: Math.round((intP + slopeP * i) * 10) / 10,
+        trendT: Math.round((intT + slopeT * i) * 10) / 10,
+      }
+    })
+  }
+
+  const chartData = addTrends(
+    selectedResults.map((r, i) => ({ nr: i + 1, datum: r.event_date, poäng: r.total_score, tior: r.inner_tens }))
+  )
 
   const last10 = [...selectedResults].reverse().slice(0, 10)
 
@@ -161,23 +192,38 @@ export function Leaderboard({ events }: Props) {
           {chartData.length >= 2 ? (
             <>
               <p style={{ margin: '0 0 0.25rem', fontWeight: 600, fontSize: '0.85rem', color: '#3b82f6' }}>Poäng</p>
-              <ResponsiveContainer width="100%" height={160}>
+              <div style={{ fontSize: '0.72rem', color: '#6b7280', marginBottom: '0.4rem' }}>
+                <span style={{ color: '#93c5fd' }}>···</span> Rådata &nbsp;
+                <span style={{ color: '#3b82f6' }}>—</span> EWA (trend) &nbsp;
+                <span style={{ color: '#1d4ed8' }}>— —</span> Linjär trend
+              </div>
+              <ResponsiveContainer width="100%" height={180}>
                 <LineChart data={chartData} margin={{ top: 4, right: 16, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                   <XAxis dataKey="datum" tick={{ fontSize: 10 }} />
                   <YAxis domain={[150, 'auto']} tick={{ fontSize: 10 }} width={36} />
                   <Tooltip labelFormatter={(l) => `Datum: ${l}`} />
-                  <Line type="monotone" dataKey="poäng" stroke="#3b82f6" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} name="Poäng" />
+                  <Line type="monotone" dataKey="poäng" stroke="#93c5fd" strokeWidth={1} strokeDasharray="3 3" dot={{ r: 3 }} activeDot={{ r: 5 }} name="Rådata" />
+                  <Line type="monotone" dataKey="ewaP" stroke="#3b82f6" strokeWidth={2.5} dot={false} name="EWA" />
+                  <Line type="monotone" dataKey="trendP" stroke="#1d4ed8" strokeWidth={1.5} strokeDasharray="6 3" dot={false} name="Trend" />
                 </LineChart>
               </ResponsiveContainer>
-              <p style={{ margin: '1rem 0 0.25rem', fontWeight: 600, fontSize: '0.85rem', color: '#f59e0b' }}>Tior</p>
-              <ResponsiveContainer width="100%" height={160}>
+
+              <p style={{ margin: '1.25rem 0 0.25rem', fontWeight: 600, fontSize: '0.85rem', color: '#f59e0b' }}>Tior</p>
+              <div style={{ fontSize: '0.72rem', color: '#6b7280', marginBottom: '0.4rem' }}>
+                <span style={{ color: '#fcd34d' }}>···</span> Rådata &nbsp;
+                <span style={{ color: '#f59e0b' }}>—</span> EWA (trend) &nbsp;
+                <span style={{ color: '#b45309' }}>— —</span> Linjär trend
+              </div>
+              <ResponsiveContainer width="100%" height={180}>
                 <LineChart data={chartData} margin={{ top: 4, right: 16, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                   <XAxis dataKey="datum" tick={{ fontSize: 10 }} />
                   <YAxis domain={[0, 20]} tick={{ fontSize: 10 }} width={36} />
                   <Tooltip labelFormatter={(l) => `Datum: ${l}`} />
-                  <Line type="monotone" dataKey="tior" stroke="#f59e0b" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} name="Tior" />
+                  <Line type="monotone" dataKey="tior" stroke="#fcd34d" strokeWidth={1} strokeDasharray="3 3" dot={{ r: 3 }} activeDot={{ r: 5 }} name="Rådata" />
+                  <Line type="monotone" dataKey="ewaT" stroke="#f59e0b" strokeWidth={2.5} dot={false} name="EWA" />
+                  <Line type="monotone" dataKey="trendT" stroke="#b45309" strokeWidth={1.5} strokeDasharray="6 3" dot={false} name="Trend" />
                 </LineChart>
               </ResponsiveContainer>
             </>
