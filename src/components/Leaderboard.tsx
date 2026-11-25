@@ -26,8 +26,17 @@ type ShooterResult = {
   event_title: string
 }
 
+type SortKey = 'rank' | 'namn' | 'bestScore' | 'avgScore' | 'totalScore' | 'sessions' | 'bestInnerTens'
+
 export function Leaderboard({ events }: Props) {
   const [selected, setSelected] = useState<string | null>(null)
+  const [sortKey, setSortKey] = useState<SortKey>('rank')
+  const [sortAsc, setSortAsc] = useState(false)
+
+  function handleSort(key: SortKey) {
+    if (sortKey === key) setSortAsc((v) => !v)
+    else { setSortKey(key); setSortAsc(key === 'namn') }
+  }
 
   const allResults = events.flatMap((e) =>
     e.results.map((r) => ({ ...r, event_date: e.event_date, event_type: e.type, event_title: e.title }))
@@ -56,11 +65,25 @@ export function Leaderboard({ events }: Props) {
     }
   })
 
+  // Default ranking order (used as rank column)
   stats.sort((a, b) =>
     b.bestScore - a.bestScore ||
     (b.bestInnerTens ?? -1) - (a.bestInnerTens ?? -1) ||
     b.avgScore - a.avgScore
   )
+  const ranked = stats.map((s, i) => ({ ...s, rank: i + 1 }))
+
+  const sorted = [...ranked].sort((a, b) => {
+    let cmp = 0
+    if (sortKey === 'namn') cmp = a.namn.localeCompare(b.namn, 'sv')
+    else if (sortKey === 'bestScore') cmp = a.bestScore - b.bestScore
+    else if (sortKey === 'avgScore') cmp = a.avgScore - b.avgScore
+    else if (sortKey === 'totalScore') cmp = a.totalScore - b.totalScore
+    else if (sortKey === 'sessions') cmp = a.sessions - b.sessions
+    else if (sortKey === 'bestInnerTens') cmp = (a.bestInnerTens ?? -1) - (b.bestInnerTens ?? -1)
+    else cmp = a.rank - b.rank
+    return sortAsc ? cmp : -cmp
+  })
 
   const totalAll = allResults.length
 
@@ -141,20 +164,26 @@ export function Leaderboard({ events }: Props) {
         <table className="leaderboard-table">
           <thead>
             <tr>
-              <th>#</th>
-              <th>Namn</th>
-              <th title="Bästa registrerade totalpoäng">Bästa</th>
-              <th title="Genomsnittspoäng">Snitt</th>
-              <th title="Summa av alla registrerade poäng">Totalt</th>
-              <th title="Antal registrerade resultat">Pass</th>
-              <th title="Bästa antal inner tior">Tior</th>
+              {([
+                ['rank', '#', ''],
+                ['namn', 'Namn', ''],
+                ['bestScore', 'Bästa', 'Bästa registrerade totalpoäng'],
+                ['avgScore', 'Snitt', 'Genomsnittspoäng'],
+                ['totalScore', 'Totalt', 'Summa av alla registrerade poäng'],
+                ['sessions', 'Pass', 'Antal registrerade pass'],
+                ['bestInnerTens', 'Tior', 'Bästa antal inner tior'],
+              ] as [SortKey, string, string][]).map(([key, label, title]) => (
+                <th key={key} title={title} onClick={() => handleSort(key)} style={{ cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap' }}>
+                  {label}{sortKey === key ? (sortAsc ? ' ▲' : ' ▼') : ''}
+                </th>
+              ))}
               <th title="Senaste aktivitet">Senast</th>
             </tr>
           </thead>
           <tbody>
-            {stats.map((s, i) => (
-              <tr key={s.namn} className={`${i < 3 ? 'top-three' : ''} ${selected === s.namn ? 'row-selected' : ''}`}>
-                <td className="rank-cell">{i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1}</td>
+            {sorted.map((s) => (
+              <tr key={s.namn} className={`${s.rank <= 3 ? 'top-three' : ''} ${selected === s.namn ? 'row-selected' : ''}`}>
+                <td className="rank-cell">{s.rank === 1 ? '🥇' : s.rank === 2 ? '🥈' : s.rank === 3 ? '🥉' : s.rank}</td>
                 <td className="name-cell">
                   <button
                     className="name-link"
