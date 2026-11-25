@@ -11,6 +11,7 @@ type ShooterStats = {
   sessions: number
   bestScore: number
   avgScore: number
+  totalScore: number
   bestInnerTens: number | null
   avgInnerTens: number | null
   latestDate: string
@@ -47,6 +48,7 @@ export function Leaderboard({ events }: Props) {
       sessions: results.length,
       totalResults: results.length,
       bestScore: Math.max(...scores),
+      totalScore: scores.reduce((a, b) => a + b, 0),
       avgScore: Math.round((scores.reduce((a, b) => a + b, 0) / scores.length) * 10) / 10,
       bestInnerTens: tens.length > 0 ? Math.max(...tens) : null,
       avgInnerTens: tens.length > 0 ? Math.round((tens.reduce((a, b) => a + b, 0) / tens.length) * 10) / 10 : null,
@@ -143,6 +145,7 @@ export function Leaderboard({ events }: Props) {
               <th>Namn</th>
               <th title="Bästa registrerade totalpoäng">Bästa</th>
               <th title="Genomsnittspoäng">Snitt</th>
+              <th title="Summa av alla registrerade poäng">Totalt</th>
               <th title="Antal registrerade resultat">Pass</th>
               <th title="Bästa antal inner tior">Tior</th>
               <th title="Senaste aktivitet">Senast</th>
@@ -167,6 +170,7 @@ export function Leaderboard({ events }: Props) {
                   </span>
                 </td>
                 <td>{s.avgScore}</td>
+                <td>{s.totalScore}</td>
                 <td>{s.sessions}</td>
                 <td>{s.bestInnerTens ?? '–'}</td>
                 <td className="muted">{s.latestDate}</td>
@@ -174,6 +178,7 @@ export function Leaderboard({ events }: Props) {
             ))}
             <tr className="totalt-row">
               <td colSpan={4}><strong>Totalt</strong></td>
+              <td><strong>{stats.reduce((a, s) => a + s.totalScore, 0)}</strong></td>
               <td><strong>{totalAll}</strong></td>
               <td colSpan={2} />
             </tr>
